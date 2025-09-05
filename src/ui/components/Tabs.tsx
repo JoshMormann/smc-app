@@ -1,7 +1,7 @@
 "use client";
 /*
  * Documentation:
- * Tabs — https://app.subframe.com/library?component=Tabs_e1ad5091-8ad8-4319-b1f7-3e47f0256c20
+ * Tabs — https://app.subframe.com/6b68d96d3e29/library?component=Tabs_e1ad5091-8ad8-4319-b1f7-3e47f0256c20
  */
 
 import React from "react";

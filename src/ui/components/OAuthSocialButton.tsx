@@ -1,7 +1,7 @@
 "use client";
 /*
  * Documentation:
- * OAuth Social Button — https://app.subframe.com/library?component=OAuth+Social+Button_f1948f75-65f9-4f21-b3e4-a49511440c26
+ * OAuth Social Button — https://app.subframe.com/6b68d96d3e29/library?component=OAuth+Social+Button_f1948f75-65f9-4f21-b3e4-a49511440c26
  */
 
 import React from "react";

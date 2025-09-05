@@ -1,7 +1,7 @@
 "use client";
 /*
  * Documentation:
- * Area Chart — https://app.subframe.com/library?component=Area+Chart_8aa1e7b3-5db6-4a62-aa49-137ced21a231
+ * Area Chart — https://app.subframe.com/6b68d96d3e29/library?component=Area+Chart_8aa1e7b3-5db6-4a62-aa49-137ced21a231
  */
 
 import React from "react";

@@ -1,12 +1,12 @@
 "use client";
 /*
  * Documentation:
- * ActionBar — https://app.subframe.com/library?component=ActionBar_42519152-fea5-4944-9ab1-0420c034e2cf
- * Avatar — https://app.subframe.com/library?component=Avatar_bec25ae6-5010-4485-b46b-cf79e3943ab2
- * Button — https://app.subframe.com/library?component=Button_3b777358-b86b-40af-9327-891efc6826fe
- * Dropdown Menu — https://app.subframe.com/library?component=Dropdown+Menu_99951515-459b-4286-919e-a89e7549b43b
- * MainNavigation — https://app.subframe.com/library?component=MainNavigation_43685770-d0c2-4fb4-9e95-6c4897670e42
- * MainSearch — https://app.subframe.com/library?component=MainSearch_c11e91ce-745d-48ea-8823-03d553dc4c28
+ * ActionBar — https://app.subframe.com/6b68d96d3e29/library?component=ActionBar_42519152-fea5-4944-9ab1-0420c034e2cf
+ * Avatar — https://app.subframe.com/6b68d96d3e29/library?component=Avatar_bec25ae6-5010-4485-b46b-cf79e3943ab2
+ * Button — https://app.subframe.com/6b68d96d3e29/library?component=Button_3b777358-b86b-40af-9327-891efc6826fe
+ * Dropdown Menu — https://app.subframe.com/6b68d96d3e29/library?component=Dropdown+Menu_99951515-459b-4286-919e-a89e7549b43b
+ * MainNavigation — https://app.subframe.com/6b68d96d3e29/library?component=MainNavigation_43685770-d0c2-4fb4-9e95-6c4897670e42
+ * MainSearch — https://app.subframe.com/6b68d96d3e29/library?component=MainSearch_c11e91ce-745d-48ea-8823-03d553dc4c28
  */
 
 import React from "react";
@@ -57,7 +57,7 @@ const MainNavigationRoot = React.forwardRef<
           <img className="h-8 w-8 flex-none object-cover" src={logo} />
         ) : null}
         {breadcrumbs ? (
-          <div className="flex items-center gap-6 lg:flex xl:flex 2xl:flex sm:hidden md:hidden">
+          <div className="items-center gap-6 hidden lg:flex xl:flex 2xl:flex sm:hidden md:hidden">
             {breadcrumbs}
           </div>
         ) : null}

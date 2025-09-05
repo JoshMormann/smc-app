@@ -1,7 +1,7 @@
 "use client";
 /*
  * Documentation:
- * Search Detail — https://app.subframe.com/library?component=Search+Detail_92f3c4fc-f923-42f3-8d83-561c2144a012
+ * Search Detail — https://app.subframe.com/6b68d96d3e29/library?component=Search+Detail_92f3c4fc-f923-42f3-8d83-561c2144a012
  */
 
 import React from "react";

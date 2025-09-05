@@ -157,8 +157,9 @@ const StylereferenceCardRoot = React.forwardRef<
             <FeatherRedo className="text-heading-4 font-heading-4 text-subtext-color" />
           )}
           <span className="text-body font-body text-subtext-color">
-            Click here, the add button in the main menu, or simply drag an image
-            onto the app to start saving an SREF code.
+            {variant === "library-save"
+              ? "Click here, the add button in the main menu, or simply drag an image onto the app to save an SREF code."
+              : "Click here, the add button in the main menu, or simply drag an image onto the app to start saving an SREF code."}
           </span>
         </div>
       </div>

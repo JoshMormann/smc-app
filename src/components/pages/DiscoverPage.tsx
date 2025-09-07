@@ -1,16 +1,15 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { DefaultPageLayout } from '@/ui/layouts/DefaultPageLayout'
-import { MainNavigation } from '@/ui/components/MainNavigation'
-import { SideBarNavigation } from '@/ui/components/SideBarNavigation'
 import { StyleReferenceGallery } from '@/ui/components/StyleReferenceGallery'
 import { StylereferenceCard } from '@/ui/components/StylereferenceCard'
 import { Button } from '@/ui/components/Button'
-import { IconButton } from '@/ui/components/IconButton'
 import { Breadcrumbs } from '@/ui/components/Breadcrumbs'
-import { FeatherCompass, FeatherHeart, FeatherLibraryBig, FeatherMenu } from '@subframe/core'
 import { User } from '@supabase/supabase-js'
+import { AuthAwareMainNavigation } from '@/components/navigation/AuthAwareMainNavigation'
+import { AuthAwareSideBarNavigation } from '@/components/navigation/AuthAwareSideBarNavigation'
 
 type Variant = 'preview-1' | 'preview-2' | 'preview-3' | 'preview-4'
 
@@ -41,12 +40,13 @@ interface DiscoverPageProps {
 }
 
 export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
+  const router = useRouter()
   const isAuthenticated = !!user
 
   const handleSrefAction = (action: 'like' | 'copy', srefId: string) => {
     if (!isAuthenticated) {
-      // Show auth modal
-      console.log('Show auth modal for action:', action)
+      // Redirect to sign in
+      router.push('/auth/signin')
       return
     }
     
@@ -56,18 +56,6 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
 
   const handleTagClick = (tag: string) => {
     console.log('Filter by tag:', tag)
-  }
-
-  const handleNavigation = (page: 'discover' | 'favorites' | 'library') => {
-    if (page === 'favorites' || page === 'library') {
-      if (!isAuthenticated) {
-        console.log('Show auth modal for protected page:', page)
-        return
-      }
-    }
-    
-    // Navigate to page
-    console.log('Navigate to:', page)
   }
 
   const getVariantForCount = (count: number): Variant => {
@@ -169,9 +157,7 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
   return (
     <DefaultPageLayout>
       <div className="flex h-full w-full flex-col items-start bg-default-background">
-        <MainNavigation
-          logo="https://res.cloudinary.com/subframe/image/upload/v1755835889/uploads/15654/omtpskog4glajk11lbwm.svg"
-          authenticated={isAuthenticated}
+        <AuthAwareMainNavigation 
           breadcrumbs={
             <Breadcrumbs>
               <Breadcrumbs.Item main="top-nav">
@@ -186,35 +172,7 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
         />
         
         <div className="flex w-full items-start gap-5 px-5 grow">
-          <SideBarNavigation
-            mainActions={
-              <>
-                <IconButton
-                  variant="brand-primary"
-                  size="large"
-                  icon={<FeatherCompass />}
-                  onClick={() => handleNavigation('discover')}
-                />
-                <IconButton
-                  size="large"
-                  icon={<FeatherHeart />}
-                  onClick={() => handleNavigation('favorites')}
-                />
-                <IconButton
-                  size="large"
-                  icon={<FeatherLibraryBig />}
-                  onClick={() => handleNavigation('library')}
-                />
-              </>
-            }
-            bottomAction={
-              <IconButton
-                size="large"
-                icon={<FeatherMenu />}
-                onClick={() => console.log('Open settings menu')}
-              />
-            }
-          />
+          <AuthAwareSideBarNavigation />
           
           <StyleReferenceGallery
             cards={
@@ -222,29 +180,31 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
                 {initialSrefCodes.map((sref) => {
                   const variant = getVariantForCount(sref.code_images?.length || 0)
                   return (
-                    <StylereferenceCard
-                      key={sref.id}
-                      srefValue={sref.code_value}
-                      svValue={sref.sv_version}
-                      variant={variant}
-                      tags={
-                        <>
-                          {sref.code_tags.map((tag) => (
-                            <Button
-                              key={tag.id}
-                              variant="neutral-secondary"
-                              size="small"
-                              onClick={() => handleTagClick(tag.tag)}
-                            >
-                              {tag.tag}
-                            </Button>
-                          ))}
-                        </>
-                      }
-                      images={renderImagesForVariant(sref)}
-                      onLike={() => handleSrefAction('like', sref.id)}
-                      onCopy={() => handleSrefAction('copy', sref.id)}
-                    />
+                    <div key={sref.id} onClick={() => handleSrefAction('copy', sref.id)}>
+                      <StylereferenceCard
+                        srefValue={sref.code_value}
+                        svValue={sref.sv_version}
+                        variant={variant}
+                        tags={
+                          <>
+                            {sref.code_tags.map((tag) => (
+                              <Button
+                                key={tag.id}
+                                variant="neutral-secondary"
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleTagClick(tag.tag)
+                                }}
+                              >
+                                {tag.tag}
+                              </Button>
+                            ))}
+                          </>
+                        }
+                        images={renderImagesForVariant(sref)}
+                      />
+                    </div>
                   )
                 })}
               </>

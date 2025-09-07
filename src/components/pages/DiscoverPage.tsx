@@ -12,6 +12,8 @@ import { Breadcrumbs } from '@/ui/components/Breadcrumbs'
 import { FeatherCompass, FeatherHeart, FeatherLibraryBig, FeatherMenu } from '@subframe/core'
 import { User } from '@supabase/supabase-js'
 
+type Variant = 'preview-1' | 'preview-2' | 'preview-3' | 'preview-4'
+
 interface SrefCode {
   id: string
   code_value: string
@@ -68,6 +70,102 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
     console.log('Navigate to:', page)
   }
 
+  const getVariantForCount = (count: number): Variant => {
+    if (count <= 1) return 'preview-1'
+    if (count === 2) return 'preview-2'
+    if (count === 3) return 'preview-3'
+    return 'preview-4'
+  }
+
+  const renderImagesForVariant = (sref: SrefCode) => {
+    const images = [...(sref.code_images || [])]
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+      .slice(0, 4)
+
+    const common = 'w-full h-full grow shrink-0 basis-0 object-cover'
+
+    switch (images.length) {
+      case 1:
+        return (
+          <img
+            key={images[0].id}
+            className={`${common} row-span-4 col-span-4 row-start-1`}
+            src={images[0].image_url}
+            alt={`SREF ${sref.title} image 1`}
+          />
+        )
+      case 2:
+        return (
+          <>
+            <img
+              key={images[0].id}
+              className={`${common} row-span-4 col-span-4 row-start-1`}
+              src={images[0].image_url}
+              alt={`SREF ${sref.title} image 1`}
+            />
+            <img
+              key={images[1].id}
+              className={`${common} row-span-4 col-span-4 row-start-5`}
+              src={images[1].image_url}
+              alt={`SREF ${sref.title} image 2`}
+            />
+          </>
+        )
+      case 3:
+        return (
+          <>
+            <img
+              key={images[0].id}
+              className={`${common} row-span-4 col-span-4 row-start-1`}
+              src={images[0].image_url}
+              alt={`SREF ${sref.title} image 1`}
+            />
+            <img
+              key={images[1].id}
+              className={`${common} row-span-2 col-span-2 row-start-5`}
+              src={images[1].image_url}
+              alt={`SREF ${sref.title} image 2`}
+            />
+            <img
+              key={images[2].id}
+              className={`${common} row-span-2 col-span-2 row-start-5`}
+              src={images[2].image_url}
+              alt={`SREF ${sref.title} image 3`}
+            />
+          </>
+        )
+      default:
+        return (
+          <>
+            <img
+              key={images[0].id}
+              className={`${common} row-span-4 col-span-4 row-start-1`}
+              src={images[0].image_url}
+              alt={`SREF ${sref.title} image 1`}
+            />
+            <img
+              key={images[1].id}
+              className={`${common} row-span-4 col-span-4 row-start-5`}
+              src={images[1].image_url}
+              alt={`SREF ${sref.title} image 2`}
+            />
+            <img
+              key={images[2].id}
+              className={`${common} row-span-2 col-span-2 row-start-9`}
+              src={images[2].image_url}
+              alt={`SREF ${sref.title} image 3`}
+            />
+            <img
+              key={images[3].id}
+              className={`${common} row-span-2 col-span-2 row-start-9`}
+              src={images[3].image_url}
+              alt={`SREF ${sref.title} image 4`}
+            />
+          </>
+        )
+    }
+  }
+
   return (
     <DefaultPageLayout>
       <div className="flex h-full w-full flex-col items-start bg-default-background">
@@ -121,47 +219,34 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
           <StyleReferenceGallery
             cards={
               <>
-                {initialSrefCodes.map((sref, index) => (
-                  <StylereferenceCard
-                    key={sref.id}
-                    srefValue={sref.code_value}
-                    svValue={sref.sv_version}
-                    variant={index % 4 === 0 ? 'preview-1' : index % 4 === 1 ? 'preview-2' : index % 4 === 2 ? 'preview-3' : 'preview-1'}
-                    tags={
-                      <>
-                        {sref.code_tags.map((tag) => (
-                          <Button
-                            key={tag.id}
-                            variant="neutral-secondary"
-                            size="small"
-                            onClick={() => handleTagClick(tag.tag)}
-                          >
-                            {tag.tag}
-                          </Button>
-                        ))}
-                      </>
-                    }
-                    images={
-                      <>
-                        {sref.code_images.map((image, imgIndex) => (
-                          <img
-                            key={image.id}
-                            className={`w-full grow shrink-0 basis-0 object-contain ${
-                              imgIndex === 0 ? 'row-span-4 col-span-4 row-start-1' :
-                              imgIndex === 1 ? 'row-span-4 col-span-4 row-start-5' :
-                              imgIndex === 2 ? 'row-span-2 col-span-2 row-start-9' :
-                              'row-span-2 col-span-2 row-start-9'
-                            }`}
-                            src={image.image_url}
-                            alt={`SREF ${sref.title} image ${imgIndex + 1}`}
-                          />
-                        ))}
-                      </>
-                    }
-                    onLike={() => handleSrefAction('like', sref.id)}
-                    onCopy={() => handleSrefAction('copy', sref.id)}
-                  />
-                ))}
+                {initialSrefCodes.map((sref) => {
+                  const variant = getVariantForCount(sref.code_images?.length || 0)
+                  return (
+                    <StylereferenceCard
+                      key={sref.id}
+                      srefValue={sref.code_value}
+                      svValue={sref.sv_version}
+                      variant={variant}
+                      tags={
+                        <>
+                          {sref.code_tags.map((tag) => (
+                            <Button
+                              key={tag.id}
+                              variant="neutral-secondary"
+                              size="small"
+                              onClick={() => handleTagClick(tag.tag)}
+                            >
+                              {tag.tag}
+                            </Button>
+                          ))}
+                        </>
+                      }
+                      images={renderImagesForVariant(sref)}
+                      onLike={() => handleSrefAction('like', sref.id)}
+                      onCopy={() => handleSrefAction('copy', sref.id)}
+                    />
+                  )
+                })}
               </>
             }
           />

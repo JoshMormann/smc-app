@@ -68,3 +68,7 @@ Troubleshooting tips
 - Large images: enable Next image optimization; ensure domains allowed in next.config.js.
 - Edge vs Node: choose per-route runtime if needed. Default Node is fine for Supabase server clients.
 
+Notes for Subframe styling
+
+- This project relies on Tailwind v3 for Subframe-generated utilities. If styles look unstyled after a dependency or config change, confirm the Tailwind v3 wrapper is in place (see docs/subframe-troubleshooting.md).
+

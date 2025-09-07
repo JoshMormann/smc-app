@@ -64,3 +64,6 @@ Sources
 [10] [PDF] Chapter 4 Simple Patterns for Extensibility http://st.inf.tu-dresden.de/files/teaching/ws14/dpf/04-dpf-simple-extensibility.pdf
 [11] [PDF] Installation Instructions - Suspa https://www.suspa.com/downloads/SUSPA\_ELS\_HD\_subframe\_EN.pdf
 [12] SUBFRAME AI - The LAZIEST Way to Build UI/UX Design With AI https://www.youtube.com/watch?v=t7eB1Gs\_OP8
+
+## See also
+- Subframe + Tailwind Troubleshooting (SMC): ./subframe-troubleshooting.md

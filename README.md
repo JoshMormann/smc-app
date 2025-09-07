@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## Quick styling check (Subframe + Tailwind)
+
+This project uses the Subframe design system with Tailwind v3. If the UI looks unstyled or “off,” verify:
+
+- Tailwind v3 toolchain is installed (tailwindcss v3, postcss v8, autoprefixer)
+- postcss.config.* uses the classic pipeline: ["tailwindcss", "autoprefixer"]
+- tailwind.config.js is a wrapper that:
+  - Scans project files via content globs
+  - Imports the Subframe theme from `src/ui/tailwind.config.js`
+  - Loads `@tailwindcss/forms` and `@tailwindcss/typography`
+- Only one Next.js app root (keep `app/`; avoid `src/app/` conflicts)
+- Do not import `@subframe/core/dist/index.css` (not shipped in the current package)
+- Restart dev server after changes: `npm run dev`
+
+See docs/subframe-troubleshooting.md for detailed steps and recovery.

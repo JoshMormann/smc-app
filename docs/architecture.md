@@ -1,77 +1,185 @@
 # Architecture Overview
 
-System components
+## System Components
 
-- Next.js 14 (App Router)
-  - Server Components for data fetching where possible
-  - Route Handlers (app/api/*) for server-side operations
+### Frontend Stack
+- **Next.js 14** (App Router)
+  - Server Components for data fetching and SEO
   - Client Components for interactivity only
-- UI: Subframe component library + Tailwind CSS
-- Backend: Supabase (PostgreSQL, Auth, Storage)
-- Hosting: Netlify (preferred)
+  - Route Handlers (app/api/*) for server-side operations
+  - Middleware for auth and redirects
+- **UI Framework**: Subframe component library + Tailwind CSS
+- **State Management**: React Context + Supabase client state
 
-Data flow (typical)
+### Backend Stack
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
+- **File Storage**: Supabase Storage
+- **Real-time**: Supabase Realtime (future)
 
-- Unauthenticated Discover
-  - Client requests page → Server Component queries sref_codes (public SELECT)
-  - Render code cards with first image, tags
+### Hosting & Deployment
+- **Primary**: Netlify (preferred)
+- **CDN**: Built-in Netlify CDN
+- **Environment**: Node.js runtime
 
-- Authenticated actions
-  - User signs in (Supabase Auth)
-  - Client sends request to Route Handler with session
-  - Handler uses Supabase server client with auth context to insert/update rows (RLS-enforced)
+## Data Flow Patterns
 
-Directory structure (suggested)
+### Unauthenticated Discover Flow
+```
+User Request → Server Component → Supabase Query (public) → Render Cards
+```
 
-- app/
-  - (routes)/discover
-  - (routes)/favorites
-  - (routes)/library
-  - api/
-    - sref-codes/route.ts (list/create)
-    - sref-codes/[id]/route.ts (read/update/delete)
-    - votes/route.ts
-    - favorites/route.ts
-- components/
-  - ui/ (Subframe-based building blocks)
-  - sref/
-- lib/
-  - supabase/server.ts (server client)
-  - supabase/client.ts (client limited)
-  - validators/
-- docs/
-- supabase/
+### Authenticated Actions Flow
+```
+User Action → Client Component → Route Handler → Supabase Mutation → RLS Check → Response
+```
 
-Security & RLS
+### Search & Filter Flow
+```
+User Input → URL State → Server Component → Supabase Query → Filtered Results
+```
 
-- Public read model: codes/images/tags readable without auth
-- Ownership writes: code, image, tag modifications require auth.uid() to match owner
-- Per-user resources: folders, favorites, votes are scoped to the user
-- Never expose service role key to the client; keep privileged logic server-side
+## Component Architecture
 
-Performance notes
+### Layout Hierarchy
+```
+DefaultPageLayout
+├── SideBarNavigation
+├── MainNavigation
+└── Page Content
+    ├── SearchHeader
+    ├── FilterControls
+    └── SrefGrid
+        └── SrefCard[]
+```
 
-- Use Server Components for initial lists to reduce client JS
-- Paginate Discover queries and index on sref_codes(title, created_at) as needed
-- Lazy-load images and prefer optimized formats
+### State Management Strategy
+- **Server State**: Supabase queries in Server Components
+- **Client State**: React Context for auth, local state for UI
+- **URL State**: Search parameters for filters
+- **Form State**: React Hook Form for complex forms
 
-Error handling
+## Directory Structure
 
-- Use typed responses in route handlers { ok: boolean, data?: T, error?: string }
-- Map database errors (unique constraint violations) to user-friendly messages
+```
+app/
+├── (routes)/
+│   ├── discover/
+│   ├── favorites/
+│   └── library/
+├── api/
+│   ├── sref-codes/
+│   │   ├── route.ts (list/create)
+│   │   └── [id]/route.ts (read/update/delete)
+│   ├── votes/route.ts
+│   └── favorites/route.ts
+├── globals.css
+├── layout.tsx
+└── page.tsx
 
-Observability
+components/
+├── ui/ (Subframe-based building blocks - DO NOT MODIFY)
+├── layout/ (Layout components)
+├── navigation/ (Navigation components)
+├── sref/ (SREF-specific components)
+└── common/ (Shared utility components)
 
-- Log key events server-side (without secrets)
-- Consider lightweight analytics on page views and interactions (respect privacy)
+lib/
+├── supabase/
+│   ├── server.ts (server client)
+│   ├── client.ts (client limited)
+│   └── errors.ts (error handling)
+├── validators/ (Zod schemas)
+├── hooks/ (Custom React hooks)
+└── utils/ (Utility functions)
 
-Deployments
+src/
+└── staging/ (Page views from Subframe - Agent modifiable)
+```
 
-- Netlify-first. See docs/netlify-deployment.md for runtime and env details
-- Push to main triggers deploy; use preview builds for feature branches if configured
+## Security & RLS
 
-Future expansion
+### Access Control Model
+- **Public Read**: codes/images/tags readable without auth
+- **Ownership Writes**: code modifications require auth.uid() match
+- **Per-User Resources**: folders, favorites, votes scoped to user
+- **Service Role**: Never expose to client; server-side only
 
-- Edge runtime for read-only endpoints if latency-sensitive
-- Background jobs (Netlify Scheduled Functions) for maintenance tasks
+### RLS Policy Patterns
+```sql
+-- Public read example
+CREATE POLICY "Public read access" ON sref_codes
+FOR SELECT USING (true);
+
+-- Ownership write example
+CREATE POLICY "Owner can modify" ON sref_codes
+FOR ALL USING (auth.uid() = user_id);
+```
+
+## Performance Optimization
+
+### Server-Side Optimizations
+- Use Server Components for initial data loading
+- Implement pagination for large datasets
+- Add database indexes on frequently queried columns
+- Use Supabase connection pooling
+
+### Client-Side Optimizations
+- Lazy load images with Next.js Image component
+- Implement virtual scrolling for large lists
+- Use React.memo for expensive components
+- Optimize bundle size with dynamic imports
+
+### Caching Strategy
+- Static generation for public pages
+- ISR for semi-dynamic content
+- Client-side caching for user-specific data
+- CDN caching for static assets
+
+## Error Handling Strategy
+
+### Error Boundaries
+- Global error boundary for unhandled errors
+- Route-level error boundaries for page-specific errors
+- Component-level error boundaries for isolated failures
+
+### API Error Handling
+- Standardized error response format
+- User-friendly error messages
+- Proper HTTP status codes
+- Error logging and monitoring
+
+### Database Error Handling
+- RLS violation handling
+- Constraint violation mapping
+- Connection error retry logic
+- Transaction rollback on failures
+
+## Monitoring & Observability
+
+### Logging Strategy
+- Structured logging with context
+- Error tracking with stack traces
+- Performance monitoring
+- User interaction analytics
+
+### Health Checks
+- Database connection monitoring
+- API endpoint health checks
+- External service dependency checks
+- Performance metrics tracking
+
+## Future Expansion Considerations
+
+### Scalability
+- Edge runtime for read-only endpoints
+- Background jobs with Netlify Functions
+- Database read replicas for heavy queries
+- Microservice extraction for complex features
+
+### Feature Additions
+- Real-time updates with Supabase Realtime
+- Advanced search with full-text search
+- Image processing pipeline
+- Mobile app with shared API
 

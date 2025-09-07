@@ -61,8 +61,41 @@ Images & storage
 - Store image URLs in code_images.image_url (typically Supabase Storage public URLs)
 - Consider signed URLs for private scenarios; current model assumes public read access
 
-Troubleshooting
+## Troubleshooting Common RLS Issues
 
+### RLS Policy Debugging
+```sql
+-- Check if RLS is enabled
+SELECT schemaname, tablename, rowsecurity 
+FROM pg_tables 
+WHERE tablename = 'sref_codes';
+
+-- Test RLS policies
+SET LOCAL role TO authenticated;
+SET LOCAL "request.jwt.claims" TO '{"sub": "user-uuid"}';
+SELECT * FROM sref_codes;
+```
+
+### Common RLS Errors
+1. **"new row violates row-level security policy"**
+   - Check if auth.uid() matches user_id
+   - Verify policy conditions are correct
+
+2. **"permission denied for table"**
+   - Ensure RLS policies exist for the operation
+   - Check if user has proper role
+
+3. **"JWT expired"**
+   - Refresh auth token
+   - Check token expiration settings
+
+### Connection Issues
+- Verify environment variables
+- Check Supabase project status
+- Test with simple query first
+- Monitor connection pool usage
+
+### General Troubleshooting
 - Ensure auth.uid() context exists when debugging RLS-denied writes
 - Verify policies for DELETE/UPDATE on code_images/code_tags (fixed in 20250121 migration)
 

@@ -12,7 +12,6 @@ import { MainSearch } from "./MainSearch";
 
 interface MainNavigationRootProps extends React.HTMLAttributes<HTMLDivElement> {
   logo?: string;
-  authenticated?: boolean;
   breadcrumbs?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
@@ -24,7 +23,6 @@ const MainNavigationRoot = React.forwardRef<
 >(function MainNavigationRoot(
   {
     logo,
-    authenticated = false,
     breadcrumbs,
     actions,
     className,
@@ -35,7 +33,7 @@ const MainNavigationRoot = React.forwardRef<
   return (
     <div
       className={SubframeUtils.twClassNames(
-        "group/43685770 flex w-full items-center justify-between px-6 py-4",
+        "flex w-full items-center justify-between px-6 py-4",
         className
       )}
       ref={ref}

@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { DefaultPageLayout } from '@/ui/layouts/DefaultPageLayout'
-import { StyleReferenceGallery } from '@/ui/components/StyleReferenceGallery'
+import { DynamicStyleReferenceGallery } from '@/components/galleries/DynamicStyleReferenceGallery'
 import { StylereferenceCard } from '@/ui/components/StylereferenceCard'
 import { Button } from '@/ui/components/Button'
 import { Breadcrumbs } from '@/ui/components/Breadcrumbs'
@@ -174,14 +174,15 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
         <div className="flex w-full items-start gap-5 px-5 grow">
           <AuthAwareSideBarNavigation />
           
-          <StyleReferenceGallery
-            cards={
+          <DynamicStyleReferenceGallery
+            styleReferenceCards={
               <>
                 {initialSrefCodes.map((sref) => {
                   const variant = getVariantForCount(sref.code_images?.length || 0)
                   return (
-                    <div key={sref.id} onClick={() => handleSrefAction('copy', sref.id)}>
+                    <div key={sref.id} className="break-inside-avoid mb-4" onClick={() => handleSrefAction('copy', sref.id)}>
                       <StylereferenceCard
+                        srefTitle={sref.title}
                         srefValue={sref.code_value}
                         svValue={sref.sv_version}
                         variant={variant}

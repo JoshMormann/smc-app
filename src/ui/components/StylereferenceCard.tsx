@@ -16,10 +16,12 @@ import { IconButton } from "./IconButton";
 
 interface StylereferenceCardRootProps
   extends React.HTMLAttributes<HTMLDivElement> {
+  srefTitle?: React.ReactNode;
   srefValue?: React.ReactNode;
   svValue?: React.ReactNode;
   tags?: React.ReactNode;
   images?: React.ReactNode;
+  edit?: boolean;
   variant?:
     | "preview-4"
     | "preview-3"
@@ -27,7 +29,6 @@ interface StylereferenceCardRootProps
     | "preview-1"
     | "favorites-empty"
     | "library-save";
-  edit?: boolean;
   className?: string;
 }
 
@@ -36,12 +37,13 @@ const StylereferenceCardRoot = React.forwardRef<
   StylereferenceCardRootProps
 >(function StylereferenceCardRoot(
   {
+    srefTitle,
     srefValue,
     svValue,
     tags,
     images,
-    variant = "preview-4",
     edit = false,
+    variant = "preview-4",
     className,
     ...otherProps
   }: StylereferenceCardRootProps,
@@ -64,6 +66,11 @@ const StylereferenceCardRoot = React.forwardRef<
     >
       <div className="hidden w-full grow shrink-0 basis-0 flex-col items-center justify-center gap-6 bg-card-overlay px-4 py-4 absolute top-0 left-0 bottom-0 right-0 group-hover/f31138e0:flex">
         <div className="flex flex-col items-center justify-center gap-1">
+          {srefTitle ? (
+            <span className="text-heading-4 font-heading-4 text-default-font group-hover/f31138e0:text-heading-3 group-hover/f31138e0:font-heading-3">
+              {srefTitle}
+            </span>
+          ) : null}
           <span className="text-heading-4 font-heading-4 text-default-font">
             Click to Copy!
           </span>

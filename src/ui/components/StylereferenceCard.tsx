@@ -65,30 +65,33 @@ const StylereferenceCardRoot = React.forwardRef<
       {...otherProps}
     >
       <div className="hidden w-full grow shrink-0 basis-0 flex-col items-center justify-center gap-6 bg-card-overlay px-4 py-4 absolute top-0 left-0 bottom-0 right-0 group-hover/f31138e0:flex">
-        <div className="flex flex-col items-center justify-center gap-1">
-          {srefTitle ? (
-            <span className="text-heading-4 font-heading-4 text-default-font group-hover/f31138e0:text-heading-3 group-hover/f31138e0:font-heading-3">
-              {srefTitle}
+        <div className="flex flex-col items-center justify-center gap-1 group-hover/f31138e0:flex-col group-hover/f31138e0:flex-nowrap group-hover/f31138e0:gap-3">
+          <div className="flex flex-col items-center justify-center gap-1">
+            {srefTitle ? (
+              <span className="text-heading-4 font-heading-4 text-default-font group-hover/f31138e0:text-heading-3 group-hover/f31138e0:font-heading-3 group-hover/f31138e0:text-center">
+                {srefTitle}
+              </span>
+            ) : null}
+            <span className="text-heading-4 font-heading-4 text-default-font group-hover/f31138e0:text-center">
+              Click to Copy!
             </span>
-          ) : null}
-          <span className="text-heading-4 font-heading-4 text-default-font">
-            Click to Copy!
-          </span>
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-body font-body text-subtext-color">
-              --sref
-            </span>
+          </div>
+          <div className="flex items-center justify-center gap-1 group-hover/f31138e0:flex-col group-hover/f31138e0:flex-wrap group-hover/f31138e0:gap-1">
             {srefValue ? (
-              <span className="text-body font-body text-subtext-color">
+              <span className="text-body font-body text-subtext-color group-hover/f31138e0:text-code group-hover/f31138e0:font-code">
                 {srefValue}
               </span>
             ) : null}
-            <span className="text-body font-body text-subtext-color">--sv</span>
-            {svValue ? (
-              <span className="text-body font-body text-subtext-color">
-                {svValue}
+            <div className="flex items-center justify-center gap-1 group-hover/f31138e0:flex-row group-hover/f31138e0:flex-nowrap group-hover/f31138e0:gap-2">
+              <span className="text-body font-body text-subtext-color group-hover/f31138e0:text-code group-hover/f31138e0:font-code">
+                --sv
               </span>
-            ) : null}
+              {svValue ? (
+                <span className="text-body font-body text-subtext-color group-hover/f31138e0:text-code group-hover/f31138e0:font-code">
+                  {svValue}
+                </span>
+              ) : null}
+            </div>
           </div>
         </div>
         {tags ? (

@@ -70,7 +70,7 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
       .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
       .slice(0, 4)
 
-    const common = 'w-full h-full grow shrink-0 basis-0 object-cover'
+    const common = 'w-full h-full grow shrink-0 basis-0 object-cover aspect-square overflow-clip'
 
     switch (images.length) {
       case 1:

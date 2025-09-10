@@ -16,7 +16,7 @@ const DynamicCardGrid = React.forwardRef<HTMLDivElement, DynamicCardGridProps>(
   ) {
     return styleReferenceCards ? (
       <div
-        className={`w-full rounded-t-lg bg-neutral-border px-3 pt-3 columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-x-4 ${className || ''}`}
+        className={`w-full h-full rounded-t-lg bg-neutral-border px-3 pt-3 columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-x-4 ${className || ''}`}
         ref={ref}
         {...otherProps}
       >

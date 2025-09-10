@@ -1,50 +1,76 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# SMC App (SREF Mining Company) Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Subframe-First Design System
+Every component starts with Subframe's design system; Custom components are exceptions, not the rule; When Subframe limitations are reached, create minimal wrapper components that preserve Subframe benefits; Protect Subframe components with `// @subframe/sync-disable` only when absolutely necessary.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Authentication-Aware Architecture (NON-NEGOTIABLE)
+All components must gracefully handle both authenticated and unauthenticated states; Use wrapper pattern for adding auth logic to Subframe components; Never assume user authentication state - always check explicitly; Authentication context must be available throughout the component tree.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Hybrid Component Strategy
+99% Subframe components, 1% custom where necessary; Custom components only when Subframe cannot provide required functionality (e.g., masonry layouts, complex data flows); Custom wrappers preferred over direct Subframe modifications; Reusable patterns must be documented and systematized.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Data-Driven Development
+All SREF codes, user data, and metadata flow from Supabase; Components receive data via props, not direct database calls; Real data used in development, not placeholder content; Database schema changes require migration scripts.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. MVP-First, Polish Later
+Core functionality before visual perfection; Working features over pixel-perfect design; Iterate quickly on user value; Performance and accessibility improvements in dedicated passes.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technical Architecture
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Technology Stack (NON-NEGOTIABLE)
+- **Frontend**: Next.js 15 with App Router, React 19, TypeScript
+- **Design System**: Subframe components with Tailwind CSS
+- **Database**: Supabase (PostgreSQL) with Row Level Security
+- **Authentication**: Supabase Auth with email/password and OAuth
+- **Deployment**: Vercel (preferred) or Netlify
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Component Architecture
+- **Protected Components**: `src/ui/components/` (Subframe-synced, minimal edits)
+- **Custom Components**: `src/components/` (full control, spec-kit driven)
+- **Page Views**: `app/` directory (Next.js App Router)
+- **Staging Pages**: `src/staging/` (Subframe page views)
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### File Organization
+- Wrapper components follow naming: `AuthAware[ComponentName]`, `Dynamic[ComponentName]`
+- Custom galleries/layouts in `src/components/galleries/`
+- Navigation wrappers in `src/components/navigation/`
+- Auth context and utilities in `src/lib/auth/`
+
+## Development Workflow
+
+### Feature Development Process
+1. Assess if Subframe components can handle the requirement
+2. If yes: Use Subframe directly or create minimal wrapper
+3. If no: Create spec using spec-kit (`/specify` command)
+4. Generate implementation plan (`/plan` command)  
+5. Implement following hybrid architecture principles
+6. Test with real user authentication states
+
+### Quality Gates
+- All custom components must handle auth state appropriately
+- Build must pass without warnings (except img element warnings)
+- Real data integration required before feature completion
+- Subframe sync protection verified for custom components
+
+## User Experience Principles
+
+### SREF Mining Workflow
+- Users discover community SREF codes easily
+- Authenticated users can save favorites and create libraries
+- Copy functionality works for both auth states (redirect vs immediate)
+- Visual feedback for all user actions
+
+### Progressive Enhancement
+- Core functionality works without authentication
+- Enhanced features unlock with authentication
+- Graceful fallbacks for all authentication-dependent features
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+The Constitution supersedes all other development practices; Changes require documentation and approval; Complexity must be justified against MVP goals; Spec-kit specifications take precedence over ad-hoc feature requests.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All feature development must verify compliance with hybrid architecture; Authentication state handling is mandatory for all user-facing components; Real data integration cannot be postponed or mocked.
+
+**Version**: 1.0.0 | **Ratified**: 2025-01-10 | **Last Amended**: 2025-01-10

@@ -3,13 +3,12 @@
 import React, { useState } from 'react'
 // import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Avatar } from '@/ui/components/Avatar'
 import { Button } from '@/ui/components/Button'
 import { LinkButton } from '@/ui/components/LinkButton'
 import { OAuthSocialButton } from '@/ui/components/OAuthSocialButton'
 import { TextField } from '@/ui/components/TextField'
-import { SampleUserProfile } from '@/ui/components/SampleUserProfile'
 import { useAuth } from '@/lib/auth/context'
+import { AuthSrefShowcase } from '@/components/auth/AuthSrefShowcase'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -79,22 +78,7 @@ export default function SignUpPage() {
             </div>
           </div>
           
-          <div className="flex grow shrink-0 basis-0 flex-col items-center gap-12 self-stretch bg-brand-primary-600 px-12 py-12">
-            <SampleUserProfile
-              avatar={
-                <Avatar
-                  size="x-large"
-                  image="https://res.cloudinary.com/subframe/image/upload/v1756175238/uploads/15654/au2s2ji3wvgintuos9ql.jpg"
-                >
-                  HW
-                </Avatar>
-              }
-              name="Josh Jackson"
-              title="Founder, SMC"
-              sref="1234567890"
-              sv="6"
-            />
-          </div>
+          <AuthSrefShowcase />
         </div>
       </div>
     )
@@ -217,22 +201,7 @@ export default function SignUpPage() {
           </div>
         </div>
         
-        <div className="flex grow shrink-0 basis-0 flex-col items-center gap-12 self-stretch bg-brand-primary-600 px-12 py-12">
-          <SampleUserProfile
-            avatar={
-              <Avatar
-                size="x-large"
-                image="https://res.cloudinary.com/subframe/image/upload/v1756175238/uploads/15654/au2s2ji3wvgintuos9ql.jpg"
-              >
-                HW
-              </Avatar>
-            }
-            name="Josh Jackson"
-            title="Founder, SMC"
-            sref="1234567890"
-            sv="6"
-          />
-        </div>
+        <AuthSrefShowcase />
       </div>
     </div>
   )

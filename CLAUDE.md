@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Required environment variables:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - `SUPABASE_SERVICE_ROLE_KEY` (server-only)
+  - `SUPABASE_SERVICE_ROLE_KEY` (server-only, for bypassing RLS in API routes)
 
 ## Architecture Overview
 
@@ -35,10 +35,14 @@ app/                    # Next.js App Router pages
 
 src/
 ├── components/
+│   ├── auth/          # Auth-related components (AuthSrefShowcase)
+│   ├── galleries/     # Gallery components (DynamicStyleReferenceGallery)
+│   ├── navigation/    # Navigation components (AuthAware* pattern)
 │   ├── pages/         # Page components
 │   └── ui/            # Subframe components (DO NOT MODIFY)
 ├── lib/
-│   └── supabase/      # Database client configuration
+│   ├── auth/          # Auth utilities and random SREF fetching
+│   └── supabase/      # Database client configuration (client, server, service)
 └── staging/           # Subframe page views (agent modifiable)
 
 docs/                  # Comprehensive architecture documentation
@@ -62,6 +66,7 @@ supabase/              # Database schema and migrations
 - **RLS Policies**: Public read for `sref_codes`, ownership-based writes
 - **Auth Model**: Supabase Auth with user profiles keyed to `auth.uid()`
 - **Key Tables**: `sref_codes`, `code_images`, `code_tags`, `saved_codes`, `code_votes`
+- **Service Role Access**: Use `/src/lib/supabase/service.ts` for server-side operations that bypass RLS (requires `SUPABASE_SERVICE_ROLE_KEY`)
 
 ### Development Guidelines
 
@@ -103,11 +108,14 @@ supabase/              # Database schema and migrations
 - Uses Tailwind CSS v3 with Subframe theme configuration
 - Global styles in `app/globals.css` and `src/app/globals.css`
 - Tailwind config extends Subframe's design tokens from `src/ui/tailwind.config.js`
+- **Fonts**: National Park (headings), DM Sans (body), DM Mono (code) loaded via Google Fonts
+- **Full Height Layouts**: Use `h-full` classes with proper HTML structure (`html`, `body`, wrapper divs all need `h-full`)
 
 ### Authentication
 - Supabase Auth handles user management
 - User profiles stored in `users` table with RLS policies
 - Auth context available through React Context patterns
+- **Dynamic Showcases**: Auth pages use `AuthSrefShowcase` component with real SREF data and background images
 
 ### Documentation
 See `docs/` directory for comprehensive guides:

@@ -52,14 +52,14 @@ const AvatarRoot = React.forwardRef<HTMLDivElement, AvatarRootProps>(
         {children ? (
           <span
             className={SubframeUtils.twClassNames(
-              "line-clamp-1 w-full font-['Inter'] text-[14px] font-[500] leading-[14px] text-brand-primary-800 text-center absolute",
+              "line-clamp-1 w-full font-small-button-/-tag text-brand-primary-800 text-center absolute",
               {
-                "font-['Inter'] text-[10px] font-[500] leading-[10px] tracking-normal":
-                  size === "x-small" || size === "small",
-                "font-['Inter'] text-[18px] font-[500] leading-[18px] tracking-normal":
-                  size === "large",
-                "font-['Inter'] text-[24px] font-[500] leading-[24px] tracking-normal":
-                  size === "x-large",
+                "font-['National_Park'] text-[10px] font-[600] leading-[10px] tracking-normal":
+                  size === "x-small",
+                "font-['National_Park'] text-[10px] font-[700] leading-[10px] tracking-normal":
+                  size === "small",
+                "text-heading-3 font-heading-3": size === "large",
+                "text-heading-1 font-heading-1": size === "x-large",
                 "text-warning-800": variant === "warning",
                 "text-success-800": variant === "success",
                 "text-error-800": variant === "error",

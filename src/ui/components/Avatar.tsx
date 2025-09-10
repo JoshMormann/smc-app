@@ -8,22 +8,22 @@ import React from "react";
 import * as SubframeUtils from "../utils";
 
 interface AvatarRootProps extends React.HTMLAttributes<HTMLDivElement> {
+  circle?: boolean;
   variant?: "brand" | "neutral" | "error" | "success" | "warning";
   size?: "x-large" | "large" | "medium" | "small" | "x-small";
   children?: React.ReactNode;
   image?: string;
-  square?: boolean;
   className?: string;
 }
 
 const AvatarRoot = React.forwardRef<HTMLDivElement, AvatarRootProps>(
   function AvatarRoot(
     {
+      circle = false,
       variant = "brand",
       size = "medium",
       children,
       image,
-      square = false,
       className,
       ...otherProps
     }: AvatarRootProps,
@@ -32,17 +32,17 @@ const AvatarRoot = React.forwardRef<HTMLDivElement, AvatarRootProps>(
     return (
       <div
         className={SubframeUtils.twClassNames(
-          "group/bec25ae6 flex h-8 w-8 flex-col items-center justify-center gap-2 overflow-hidden rounded-rounded-full border border-solid border-neutral-border bg-brand-primary-100 relative",
+          "group/bec25ae6 flex h-8 w-8 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-solid border-neutral-border bg-brand-primary-100 relative",
           {
-            "rounded-md": square,
             "h-5 w-5": size === "x-small",
             "h-6 w-6": size === "small",
             "h-12 w-12": size === "large",
-            "h-32 w-32": size === "x-large",
+            "h-32 w-32 rounded-2xl": size === "x-large",
             "bg-warning-100": variant === "warning",
             "bg-success-100": variant === "success",
             "bg-error-100": variant === "error",
             "bg-neutral-100": variant === "neutral",
+            "rounded-rounded-full": circle,
           },
           className
         )}

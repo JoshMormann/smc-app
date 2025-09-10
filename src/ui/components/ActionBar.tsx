@@ -91,10 +91,10 @@ const ActionBarRoot = React.forwardRef<HTMLDivElement, ActionBarRootProps>(
                   className={SubframeUtils.twClassNames("hidden", {
                     flex: authenticated,
                   })}
+                  circle={authenticated ? true : false}
                   variant="brand"
                   size={authenticated ? "large" : "medium"}
                   image="https://res.cloudinary.com/subframe/image/upload/v1711417507/shared/fychrij7dzl8wgq2zjq9.avif"
-                  square={authenticated ? true : false}
                 >
                   A
                 </Avatar>

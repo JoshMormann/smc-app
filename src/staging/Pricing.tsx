@@ -4,17 +4,12 @@ import React from "react";
 import { Badge } from "@/ui/components/Badge";
 import { Breadcrumbs } from "@/ui/components/Breadcrumbs";
 import { Button } from "@/ui/components/Button";
-import { IconButton } from "@/ui/components/IconButton";
 import { IconWithBackground } from "@/ui/components/IconWithBackground";
 import { MainNavigation } from "@/ui/components/MainNavigation";
-import { SideBarNavigation } from "@/ui/components/SideBarNavigation";
 import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
+import { AuthAwareSideBarNavigation } from "@/components/navigation/AuthAwareSideBarNavigation";
 import { FeatherArrowRight } from "@subframe/core";
-import { FeatherCompass } from "@subframe/core";
 import { FeatherFlame } from "@subframe/core";
-import { FeatherHeart } from "@subframe/core";
-import { FeatherLibraryBig } from "@subframe/core";
-import { FeatherMenu } from "@subframe/core";
 
 function Pricing() {
   return (
@@ -35,35 +30,7 @@ function Pricing() {
           }
         />
         <div className="flex w-full items-start gap-5 px-5 grow">
-          <SideBarNavigation
-            mainActions={
-              <>
-                <IconButton
-                  size="large"
-                  icon={<FeatherCompass />}
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-                />
-                <IconButton
-                  size="large"
-                  icon={<FeatherHeart />}
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-                />
-                <IconButton
-                  size="large"
-                  icon={<FeatherLibraryBig />}
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-                />
-              </>
-            }
-            bottomAction={
-              <IconButton
-                variant="brand-primary"
-                size="large"
-                icon={<FeatherMenu />}
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-              />
-            }
-          />
+          <AuthAwareSideBarNavigation />
           <div className="flex grow shrink-0 basis-0 items-start justify-center gap-5 self-stretch rounded-t-2xl bg-neutral-border px-4 pt-4">
             <div className="flex grow shrink-0 basis-0 flex-col items-center gap-8 self-stretch rounded-t-md bg-default-background px-12 pt-32">
               <div className="flex w-full max-w-[576px] flex-col items-center justify-center gap-4">

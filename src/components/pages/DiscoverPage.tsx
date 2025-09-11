@@ -1,15 +1,18 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DefaultPageLayout } from '@/ui/layouts/DefaultPageLayout'
 import { DynamicStyleReferenceGallery } from '@/components/galleries/DynamicStyleReferenceGallery'
-import { StylereferenceCard } from '@/ui/components/StylereferenceCard'
+import { InteractiveStylereferenceCard } from '@/components/cards/InteractiveStylereferenceCard'
 import { Button } from '@/ui/components/Button'
 import { Breadcrumbs } from '@/ui/components/Breadcrumbs'
 import { User } from '@supabase/supabase-js'
 import { AuthAwareMainNavigation } from '@/components/navigation/AuthAwareMainNavigation'
 import { AuthAwareSideBarNavigation } from '@/components/navigation/AuthAwareSideBarNavigation'
+import { copyToClipboard, formatSrefForCopy } from '@/lib/utils/clipboard'
+import { showToast } from '@/lib/utils/toast'
+import { toggleFavorite, checkIfFavorited } from '@/lib/favorites'
 
 type Variant = 'preview-1' | 'preview-2' | 'preview-3' | 'preview-4'
 
@@ -42,21 +45,113 @@ interface DiscoverPageProps {
 export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
   const router = useRouter()
   const isAuthenticated = !!user
+  
+  // State for managing favorites and filtering
+  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [filteredSrefCodes, setFilteredSrefCodes] = useState<SrefCode[]>(initialSrefCodes)
+  const [activeTag, setActiveTag] = useState<string | null>(null)
 
-  const handleSrefAction = (action: 'like' | 'copy', srefId: string) => {
-    if (!isAuthenticated) {
-      // Redirect to sign in
-      router.push('/auth/signin')
+  // Load user's favorites on mount
+  useEffect(() => {
+    if (!isAuthenticated || !user) return
+    
+    const loadFavorites = async () => {
+      const favSet = new Set<string>()
+      
+      for (const sref of initialSrefCodes) {
+        const isFavorited = await checkIfFavorited(sref.id, user.id)
+        if (isFavorited) {
+          favSet.add(sref.id)
+        }
+      }
+      
+      setFavorites(favSet)
+    }
+    
+    loadFavorites()
+  }, [isAuthenticated, user, initialSrefCodes])
+
+  const handleSrefAction = async (action: 'like' | 'copy', sref: SrefCode) => {
+    if (action === 'copy') {
+      // Copy functionality now requires authentication
+      if (!isAuthenticated) {
+        router.push('/auth/signin')
+        return
+      }
+      
+      const formattedCode = formatSrefForCopy(sref.code_value, sref.sv_version)
+      const success = await copyToClipboard(formattedCode)
+      
+      if (success) {
+        showToast(`Copied: ${formattedCode}`, { type: 'success' })
+        
+        // Increment copy count in database (fire and forget)
+        fetch(`/api/sref/${sref.id}/copy`, { method: 'POST' })
+          .catch(error => console.error('Failed to update copy count:', error))
+      } else {
+        showToast('Failed to copy code', { type: 'error' })
+      }
       return
     }
     
-    // Handle authenticated action
-    console.log('Perform action:', action, 'on SREF:', srefId)
+    if (action === 'like') {
+      if (!isAuthenticated || !user) {
+        // For like/save actions, redirect to sign in
+        router.push('/auth/signin')
+        return
+      }
+      
+      // Handle favorite toggle
+      const result = await toggleFavorite(sref.id, user.id)
+      
+      if (result.success) {
+        // Update local favorites state
+        const newFavorites = new Set(favorites)
+        if (result.isFavorited) {
+          newFavorites.add(sref.id)
+        } else {
+          newFavorites.delete(sref.id)
+        }
+        setFavorites(newFavorites)
+        
+        showToast(result.message, { 
+          type: 'success',
+          duration: 2000
+        })
+      } else {
+        showToast(result.message, { type: 'error' })
+      }
+      
+      return
+    }
   }
 
   const handleTagClick = (tag: string) => {
-    console.log('Filter by tag:', tag)
+    if (activeTag === tag) {
+      // If clicking the same tag, clear filter
+      setActiveTag(null)
+      setFilteredSrefCodes(initialSrefCodes)
+    } else {
+      // Filter by new tag
+      setActiveTag(tag)
+      const filtered = initialSrefCodes.filter(sref => 
+        sref.code_tags.some(codeTag => codeTag.tag === tag)
+      )
+      setFilteredSrefCodes(filtered)
+    }
   }
+
+  // Update filtered codes when initial data changes
+  useEffect(() => {
+    if (activeTag) {
+      const filtered = initialSrefCodes.filter(sref => 
+        sref.code_tags.some(codeTag => codeTag.tag === activeTag)
+      )
+      setFilteredSrefCodes(filtered)
+    } else {
+      setFilteredSrefCodes(initialSrefCodes)
+    }
+  }, [initialSrefCodes, activeTag])
 
   const getVariantForCount = (count: number): Variant => {
     if (count <= 1) return 'preview-1'
@@ -177,21 +272,26 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
           <DynamicStyleReferenceGallery
             styleReferenceCards={
               <>
-                {initialSrefCodes.map((sref) => {
+                {filteredSrefCodes.map((sref) => {
                   const variant = getVariantForCount(sref.code_images?.length || 0)
+                  const isFavorited = favorites.has(sref.id)
+                  
                   return (
-                    <div key={sref.id} className="break-inside-avoid mb-4" onClick={() => handleSrefAction('copy', sref.id)}>
-                      <StylereferenceCard
+                    <div key={sref.id} className="break-inside-avoid mb-4 relative">
+                      <InteractiveStylereferenceCard
                         srefTitle={sref.title}
                         srefValue={sref.code_value}
                         svValue={sref.sv_version}
                         variant={variant}
+                        isFavorited={isFavorited}
+                        onCopy={() => handleSrefAction('copy', sref)}
+                        onFavorite={() => handleSrefAction('like', sref)}
                         tags={
                           <>
                             {sref.code_tags.map((tag) => (
                               <Button
                                 key={tag.id}
-                                variant="neutral-secondary"
+                                variant={activeTag === tag.tag ? "brand-primary" : "neutral-secondary"}
                                 size="small"
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -208,6 +308,19 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
                     </div>
                   )
                 })}
+                {filteredSrefCodes.length === 0 && activeTag && (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-heading-3 font-heading-3 text-subtext-color mb-2">
+                      No SREFs found for "{activeTag}"
+                    </p>
+                    <Button 
+                      variant="neutral-secondary" 
+                      onClick={() => setActiveTag(null)}
+                    >
+                      Clear filter
+                    </Button>
+                  </div>
+                )}
               </>
             }
           />

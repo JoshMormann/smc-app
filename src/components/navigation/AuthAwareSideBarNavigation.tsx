@@ -4,7 +4,9 @@ import React from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { SideBarNavigation } from '@/ui/components/SideBarNavigation'
 import { IconButton } from '@/ui/components/IconButton'
-import { FeatherCompass, FeatherHeart, FeatherLibraryBig, FeatherLogOut, FeatherLogIn } from '@subframe/core'
+import { DropdownMenu } from '@/ui/components/DropdownMenu'
+import { FeatherCompass, FeatherHeart, FeatherLibraryBig, FeatherMenu } from '@subframe/core'
+import * as SubframeCore from '@subframe/core'
 import { useAuth } from '@/lib/auth/context'
 
 interface AuthAwareSideBarNavigationProps {
@@ -29,18 +31,6 @@ export function AuthAwareSideBarNavigation({ className }: AuthAwareSideBarNaviga
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/discover')
-  }
-
-  const handleAuth = () => {
-    if (isAuthenticated) {
-      handleSignOut()
-    } else {
-      router.push('/auth/signin')
-    }
-  }
 
   const isActive = (path: string) => {
     if (path === 'discover') {
@@ -49,19 +39,28 @@ export function AuthAwareSideBarNavigation({ className }: AuthAwareSideBarNaviga
     return pathname.startsWith(`/${path}`)
   }
 
+  const isMenuActive = () => {
+    const menuPaths = ['/about', '/pricing', '/faq', '/privacy', '/terms']
+    return menuPaths.some(path => pathname === path)
+  }
+
+  const handleMenuClick = (page: 'about' | 'pricing' | 'faq' | 'privacy' | 'terms') => {
+    router.push(`/${page}`)
+  }
+
   return (
     <SideBarNavigation
       className={className}
       mainActions={
         <>
           <IconButton
-            variant={isActive('discover') ? "brand-primary" : "default"}
+            variant={isActive('discover') ? "brand-primary" : "neutral-primary"}
             size="large"
             icon={<FeatherCompass />}
             onClick={() => handleNavigation('discover')}
           />
           <IconButton
-            variant={isActive('favorites') ? "brand-primary" : "default"}
+            variant={isActive('favorites') ? "brand-primary" : "neutral-primary"}
             size="large"
             icon={<FeatherHeart />}
             onClick={() => handleNavigation('favorites')}
@@ -69,7 +68,7 @@ export function AuthAwareSideBarNavigation({ className }: AuthAwareSideBarNaviga
             className={!isAuthenticated ? 'opacity-50' : ''}
           />
           <IconButton
-            variant={isActive('library') ? "brand-primary" : "default"}
+            variant={isActive('library') ? "brand-primary" : "neutral-primary"}
             size="large"
             icon={<FeatherLibraryBig />}
             onClick={() => handleNavigation('library')}
@@ -79,13 +78,55 @@ export function AuthAwareSideBarNavigation({ className }: AuthAwareSideBarNaviga
         </>
       }
       bottomAction={
-        <IconButton
-          size="large"
-          icon={isAuthenticated ? <FeatherLogOut /> : <FeatherLogIn />}
-          onClick={handleAuth}
-          loading={loading}
-          title={isAuthenticated ? 'Sign Out' : 'Sign In'}
-        />
+        <SubframeCore.DropdownMenu.Root>
+          <SubframeCore.DropdownMenu.Trigger asChild>
+            <IconButton
+              variant={isMenuActive() ? "brand-primary" : "neutral-primary"}
+              size="large"
+              icon={<FeatherMenu />}
+            />
+          </SubframeCore.DropdownMenu.Trigger>
+          <SubframeCore.DropdownMenu.Content align="center" side="top" sideOffset={8}>
+            <DropdownMenu>
+              <DropdownMenu.DropdownItem 
+                onClick={() => handleMenuClick('about')}
+                icon={null}
+                className={pathname === '/about' ? 'bg-brand-primary-50 text-brand-primary-600 font-medium' : ''}
+              >
+                About Us
+              </DropdownMenu.DropdownItem>
+              <DropdownMenu.DropdownItem 
+                onClick={() => handleMenuClick('pricing')}
+                icon={null}
+                className={pathname === '/pricing' ? 'bg-brand-primary-50 text-brand-primary-600 font-medium' : ''}
+              >
+                Pricing
+              </DropdownMenu.DropdownItem>
+              <DropdownMenu.DropdownItem 
+                onClick={() => handleMenuClick('faq')}
+                icon={null}
+                className={pathname === '/faq' ? 'bg-brand-primary-50 text-brand-primary-600 font-medium' : ''}
+              >
+                FAQ
+              </DropdownMenu.DropdownItem>
+              <DropdownMenu.DropdownDivider />
+              <DropdownMenu.DropdownItem 
+                onClick={() => handleMenuClick('privacy')}
+                icon={null}
+                className={pathname === '/privacy' ? 'bg-brand-primary-50 text-brand-primary-600 font-medium' : ''}
+              >
+                Privacy Policy
+              </DropdownMenu.DropdownItem>
+              <DropdownMenu.DropdownItem 
+                onClick={() => handleMenuClick('terms')}
+                icon={null}
+                className={pathname === '/terms' ? 'bg-brand-primary-50 text-brand-primary-600 font-medium' : ''}
+              >
+                Terms & Conditions
+              </DropdownMenu.DropdownItem>
+            </DropdownMenu>
+          </SubframeCore.DropdownMenu.Content>
+        </SubframeCore.DropdownMenu.Root>
       }
     />
   )

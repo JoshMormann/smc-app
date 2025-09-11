@@ -7,8 +7,8 @@ export default async function DiscoverPageRoute() {
   // Check authentication status
   const { data: { user } } = await supabase.auth.getUser()
   
-  // Fetch public SREF codes for display
-  const { data: srefCodes, error } = await supabase
+  // Fetch public SREF codes for display - get more than needed to filter duplicates
+  const { data: allSrefCodes, error } = await supabase
     .from('sref_codes')
     .select(`
       id,
@@ -31,7 +31,24 @@ export default async function DiscoverPageRoute() {
       )
     `)
     .order('created_at', { ascending: false })
-    .limit(20)
+    .limit(50) // Get more records to account for filtering duplicates
+  
+  // Filter to only show latest version of each unique code_value + sv_version combination
+  const srefCodes = allSrefCodes ? (() => {
+    const codeMap = new Map()
+    
+    for (const code of allSrefCodes) {
+      const key = `${code.code_value}-${code.sv_version}`
+      
+      if (!codeMap.has(key) || new Date(code.created_at) > new Date(codeMap.get(key).created_at)) {
+        codeMap.set(key, code)
+      }
+    }
+    
+    return Array.from(codeMap.values())
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 20) // Take top 20 after filtering
+  })() : []
 
   if (error) {
     console.error('Error fetching SREF codes:', error)

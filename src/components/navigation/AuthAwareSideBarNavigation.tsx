@@ -14,7 +14,7 @@ interface AuthAwareSideBarNavigationProps {
 }
 
 export function AuthAwareSideBarNavigation({ className }: AuthAwareSideBarNavigationProps) {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const isAuthenticated = !!user && !loading

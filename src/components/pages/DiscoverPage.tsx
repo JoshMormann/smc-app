@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { DefaultPageLayout } from '@/ui/layouts/DefaultPageLayout'
 import { DynamicStyleReferenceGallery } from '@/components/galleries/DynamicStyleReferenceGallery'
@@ -8,7 +8,7 @@ import { InteractiveStylereferenceCard } from '@/components/cards/InteractiveSty
 import { Button } from '@/ui/components/Button'
 import { Breadcrumbs } from '@/ui/components/Breadcrumbs'
 import { User } from '@supabase/supabase-js'
-import { AuthAwareMainNavigation } from '@/components/navigation/AuthAwareMainNavigation'
+import { SearchableMainNavigation } from '@/components/navigation/SearchableMainNavigation'
 import { AuthAwareSideBarNavigation } from '@/components/navigation/AuthAwareSideBarNavigation'
 import { copyToClipboard, formatSrefForCopy } from '@/lib/utils/clipboard'
 import { showToast } from '@/lib/utils/toast'
@@ -46,10 +46,11 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
   const router = useRouter()
   const isAuthenticated = !!user
   
-  // State for managing favorites and filtering
+  // State for managing favorites, search, and filtering
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
-  const [filteredSrefCodes, setFilteredSrefCodes] = useState<SrefCode[]>(initialSrefCodes)
+  const [searchTerm, setSearchTerm] = useState<string>('')
   const [activeTag, setActiveTag] = useState<string | null>(null)
+  const [isTagCloudVisible, setIsTagCloudVisible] = useState<boolean>(false)
 
   // Load user's favorites on mount
   useEffect(() => {
@@ -126,32 +127,67 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
     }
   }
 
+  // Memoized filtered codes based on search term and active tag
+  const filteredSrefCodes = useMemo(() => {
+    let filtered = initialSrefCodes
+
+    // Apply search filter first
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim()
+      filtered = filtered.filter(sref => {
+        // Check title match
+        const titleMatch = sref.title.toLowerCase().includes(searchLower)
+        
+        // Check SREF code number match (extract numbers from code_value)
+        const codeMatch = sref.code_value.includes(searchTerm.trim())
+        
+        // Check tag matches
+        const tagMatch = sref.code_tags.some(tag => 
+          tag.tag.toLowerCase().includes(searchLower)
+        )
+        
+        return titleMatch || codeMatch || tagMatch
+      })
+    }
+
+    // Apply tag filter on top of search results
+    if (activeTag) {
+      filtered = filtered.filter(sref => 
+        sref.code_tags.some(codeTag => codeTag.tag === activeTag)
+      )
+    }
+
+    return filtered
+  }, [initialSrefCodes, searchTerm, activeTag])
+
+  // Extract unique tags from currently filtered codes for the tag cloud
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    filteredSrefCodes.forEach(sref => {
+      sref.code_tags.forEach(tag => {
+        tagSet.add(tag.tag)
+      })
+    })
+    return Array.from(tagSet).sort()
+  }, [filteredSrefCodes])
+
+  const handleSearchChange = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm)
+  }
+
+  const handleFilterToggle = () => {
+    setIsTagCloudVisible(!isTagCloudVisible)
+  }
+
   const handleTagClick = (tag: string) => {
     if (activeTag === tag) {
       // If clicking the same tag, clear filter
       setActiveTag(null)
-      setFilteredSrefCodes(initialSrefCodes)
     } else {
       // Filter by new tag
       setActiveTag(tag)
-      const filtered = initialSrefCodes.filter(sref => 
-        sref.code_tags.some(codeTag => codeTag.tag === tag)
-      )
-      setFilteredSrefCodes(filtered)
     }
   }
-
-  // Update filtered codes when initial data changes
-  useEffect(() => {
-    if (activeTag) {
-      const filtered = initialSrefCodes.filter(sref => 
-        sref.code_tags.some(codeTag => codeTag.tag === activeTag)
-      )
-      setFilteredSrefCodes(filtered)
-    } else {
-      setFilteredSrefCodes(initialSrefCodes)
-    }
-  }, [initialSrefCodes, activeTag])
 
   const getVariantForCount = (count: number): Variant => {
     if (count <= 1) return 'preview-1'
@@ -252,7 +288,7 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
   return (
     <DefaultPageLayout>
       <div className="flex h-full w-full flex-col items-start bg-default-background">
-        <AuthAwareMainNavigation 
+        <SearchableMainNavigation 
           breadcrumbs={
             <Breadcrumbs>
               <Breadcrumbs.Item main="top-nav">
@@ -264,12 +300,30 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
               </Breadcrumbs.Item>
             </Breadcrumbs>
           }
+          onSearchChange={handleSearchChange}
+          onFilterToggle={handleFilterToggle}
+          isFilterActive={isTagCloudVisible}
         />
         
         <div className="flex w-full items-start gap-5 px-5 grow">
           <AuthAwareSideBarNavigation />
           
           <DynamicStyleReferenceGallery
+            tagsVisible={isTagCloudVisible}
+            tags={
+              <>
+                {availableTags.map((tag) => (
+                  <Button
+                    key={tag}
+                    variant={activeTag === tag ? "brand-primary" : "neutral-secondary"}
+                    size="small"
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    {tag}
+                  </Button>
+                ))}
+              </>
+            }
             styleReferenceCards={
               <>
                 {filteredSrefCodes.map((sref) => {
@@ -308,17 +362,34 @@ export function DiscoverPage({ user, initialSrefCodes }: DiscoverPageProps) {
                     </div>
                   )
                 })}
-                {filteredSrefCodes.length === 0 && activeTag && (
+                {filteredSrefCodes.length === 0 && (searchTerm || activeTag) && (
                   <div className="col-span-full text-center py-12">
                     <p className="text-heading-3 font-heading-3 text-subtext-color mb-2">
-                      No SREFs found for "{activeTag}"
+                      {searchTerm && activeTag 
+                        ? `No SREFs found for "${searchTerm}" with tag "${activeTag}"`
+                        : searchTerm 
+                        ? `No SREFs found for "${searchTerm}"`
+                        : `No SREFs found for tag "${activeTag}"`
+                      }
                     </p>
-                    <Button 
-                      variant="neutral-secondary" 
-                      onClick={() => setActiveTag(null)}
-                    >
-                      Clear filter
-                    </Button>
+                    <div className="flex gap-2 justify-center">
+                      {searchTerm && (
+                        <Button 
+                          variant="neutral-secondary" 
+                          onClick={() => setSearchTerm('')}
+                        >
+                          Clear search
+                        </Button>
+                      )}
+                      {activeTag && (
+                        <Button 
+                          variant="neutral-secondary" 
+                          onClick={() => setActiveTag(null)}
+                        >
+                          Clear tag filter
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
               </>

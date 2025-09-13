@@ -305,7 +305,7 @@ export function EditSrefCodeDialog({
   }
 
   return (
-    <DialogLayout open={isOpen} onOpenChange={onClose}>
+    <DialogLayout className="absolute z-50" open={isOpen} onOpenChange={onClose}>
       <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="bg-default-background rounded-lg">
           {/* Custom header with close button */}

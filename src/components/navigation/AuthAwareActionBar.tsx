@@ -37,8 +37,8 @@ export function AuthAwareActionBar({ className }: AuthAwareActionBarProps) {
       // Handle authenticated state buttons
       if (buttonText === 'Add') {
         event.preventDefault()
-        console.log('Add SREF clicked')
-        // TODO: Implement add SREF functionality
+        // Navigate to library page and open create dialog
+        router.push('/library?create=true')
         return
       }
     }

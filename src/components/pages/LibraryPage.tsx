@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { DefaultPageLayout } from '@/ui/layouts/DefaultPageLayout'
 import { DynamicStyleReferenceGallery } from '@/components/galleries/DynamicStyleReferenceGallery'
 import { InteractiveStylereferenceCard } from '@/components/cards/InteractiveStylereferenceCard'
@@ -46,6 +46,7 @@ interface LibraryPageProps {
 
 export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   
   // State for managing library codes, search, and filtering  
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -56,6 +57,18 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
   // Edit dialog state
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false)
   const [selectedSrefCode, setSelectedSrefCode] = useState<SrefCode | null>(null)
+
+  // Handle URL parameters to auto-open create dialog
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setSelectedSrefCode(null) // Ensure we're in create mode
+      setIsEditDialogOpen(true)
+      // Clean up the URL parameter
+      const newUrl = new URL(window.location.href)
+      newUrl.searchParams.delete('create')
+      router.replace(newUrl.pathname + newUrl.search, { scroll: false })
+    }
+  }, [searchParams, router])
 
   // Memoized filtered codes based on search term and active tag
   const filteredSrefCodes = useMemo(() => {

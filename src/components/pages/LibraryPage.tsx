@@ -6,7 +6,9 @@ import { DefaultPageLayout } from '@/ui/layouts/DefaultPageLayout'
 import { DynamicStyleReferenceGallery } from '@/components/galleries/DynamicStyleReferenceGallery'
 import { InteractiveStylereferenceCard } from '@/components/cards/InteractiveStylereferenceCard'
 import { Button } from '@/ui/components/Button'
+import { IconButton } from '@/ui/components/IconButton'
 import { Breadcrumbs } from '@/ui/components/Breadcrumbs'
+import { FeatherPlus } from '@subframe/core'
 import { User } from '@supabase/supabase-js'
 import { SearchableMainNavigation } from '@/components/navigation/SearchableMainNavigation'
 import { AuthAwareSideBarNavigation } from '@/components/navigation/AuthAwareSideBarNavigation'
@@ -92,7 +94,7 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
   const availableTags = useMemo(() => {
     const tagSet = new Set<string>()
     filteredSrefCodes.forEach(sref => {
-      sref.code_tags.forEach(tag => {
+      sref.code_tags?.forEach(tag => {
         tagSet.add(tag.tag)
       })
     })
@@ -160,9 +162,9 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
       case 1:
         return (
           <img
-            key={images[0].id}
+            key={images[0]?.id}
             className={`${common} row-span-4 col-span-4 row-start-1`}
-            src={images[0].image_url}
+            src={images[0]?.image_url}
             alt={`SREF ${sref.title} image 1`}
           />
         )
@@ -170,15 +172,15 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
         return (
           <>
             <img
-              key={images[0].id}
+              key={images[0]?.id}
               className={`${common} row-span-4 col-span-4 row-start-1`}
-              src={images[0].image_url}
+              src={images[0]?.image_url}
               alt={`SREF ${sref.title} image 1`}
             />
             <img
-              key={images[1].id}
+              key={images[1]?.id}
               className={`${common} row-span-4 col-span-4 row-start-5`}
-              src={images[1].image_url}
+              src={images[1]?.image_url}
               alt={`SREF ${sref.title} image 2`}
             />
           </>
@@ -187,21 +189,21 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
         return (
           <>
             <img
-              key={images[0].id}
+              key={images[0]?.id}
               className={`${common} row-span-4 col-span-4 row-start-1`}
-              src={images[0].image_url}
+              src={images[0]?.image_url}
               alt={`SREF ${sref.title} image 1`}
             />
             <img
-              key={images[1].id}
+              key={images[1]?.id}
               className={`${common} row-span-2 col-span-2 row-start-5`}
-              src={images[1].image_url}
+              src={images[1]?.image_url}
               alt={`SREF ${sref.title} image 2`}
             />
             <img
-              key={images[2].id}
+              key={images[2]?.id}
               className={`${common} row-span-2 col-span-2 row-start-5`}
-              src={images[2].image_url}
+              src={images[2]?.image_url}
               alt={`SREF ${sref.title} image 3`}
             />
           </>
@@ -210,27 +212,27 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
         return (
           <>
             <img
-              key={images[0].id}
+              key={images[0]?.id}
               className={`${common} row-span-4 col-span-4 row-start-1`}
-              src={images[0].image_url}
+              src={images[0]?.image_url}
               alt={`SREF ${sref.title} image 1`}
             />
             <img
-              key={images[1].id}
+              key={images[1]?.id}
               className={`${common} row-span-4 col-span-4 row-start-5`}
-              src={images[1].image_url}
+              src={images[1]?.image_url}
               alt={`SREF ${sref.title} image 2`}
             />
             <img
-              key={images[2].id}
+              key={images[2]?.id}
               className={`${common} row-span-2 col-span-2 row-start-9`}
-              src={images[2].image_url}
+              src={images[2]?.image_url}
               alt={`SREF ${sref.title} image 3`}
             />
             <img
-              key={images[3].id}
+              key={images[3]?.id}
               className={`${common} row-span-2 col-span-2 row-start-9`}
-              src={images[3].image_url}
+              src={images[3]?.image_url}
               alt={`SREF ${sref.title} image 4`}
             />
           </>
@@ -281,6 +283,14 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
                   size="large"
                 >
                   Create Your First SREF
+                </Button>
+                
+                <Button 
+                  variant="neutral-secondary"
+                  onClick={() => router.push('/discover')}
+                  size="medium"
+                >
+                  Browse Discover
                 </Button>
               </div>
             </div>
@@ -346,7 +356,7 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
                         onEdit={() => handleSrefAction('edit', sref)}
                         tags={
                           <>
-                            {sref.code_tags.map((tag) => (
+                            {sref.code_tags?.map((tag) => (
                               <Button
                                 key={tag.id}
                                 variant={activeTag === tag.tag ? "brand-primary" : "neutral-secondary"}
@@ -412,6 +422,22 @@ export function LibraryPage({ user, initialSrefCodes }: LibraryPageProps) {
         srefCode={selectedSrefCode}
         onSave={handleSrefCodeSave}
       />
+
+      {/* Floating Action Button for creating new SREF codes */}
+      {currentSrefCodes.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <IconButton
+            size="large"
+            variant="brand-primary"
+            icon={<FeatherPlus />}
+            onClick={() => {
+              setSelectedSrefCode(null)
+              setIsEditDialogOpen(true)
+            }}
+            className="shadow-lg hover:shadow-xl transition-shadow w-14 h-14"
+          />
+        </div>
+      )}
     </DefaultPageLayout>
   )
 

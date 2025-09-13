@@ -176,9 +176,44 @@ export async function PUT(
       }
     }
 
+    // Fetch the complete updated record with all relations
+    const { data: completeUpdatedCode, error: fetchUpdatedError } = await supabase
+      .from('sref_codes')
+      .select(`
+        id,
+        code_value,
+        sv_version,
+        title,
+        copy_count,
+        upvotes,
+        downvotes,
+        save_count,
+        created_at,
+        user_id,
+        code_images (
+          id,
+          image_url,
+          position
+        ),
+        code_tags (
+          id,
+          tag
+        )
+      `)
+      .eq('id', id)
+      .single()
+
+    if (fetchUpdatedError) {
+      console.error('Error fetching updated SREF code:', fetchUpdatedError)
+      return NextResponse.json(
+        { ok: false, error: 'Failed to fetch updated SREF code' },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({
       ok: true,
-      data: updatedCode
+      data: completeUpdatedCode
     })
   } catch (error) {
     console.error('Unexpected error:', error)
